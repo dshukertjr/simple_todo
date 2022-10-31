@@ -14,18 +14,21 @@ export interface Database {
           user_id: string
           content: string
           id: string
+          is_done: boolean
           created_at: string
         }
         Insert: {
           user_id: string
           content: string
           id?: string
+          is_done?: boolean
           created_at?: string
         }
         Update: {
           user_id?: string
           content?: string
           id?: string
+          is_done?: boolean
           created_at?: string
         }
       }

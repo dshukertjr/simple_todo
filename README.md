@@ -10,6 +10,7 @@ create table if not exists public.tasks (
     id uuid not null primary key default uuid_generate_v4(),
     user_id uuid not null references auth.users(id),
     content text not null,
+    is_done boolean not null default false,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
 );
 
