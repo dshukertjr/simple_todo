@@ -46,6 +46,7 @@ const Home: NextPage = () => {
     }
     getInitialMessages()
 
+    // `tasks`テーブルに対してリアルタイムリスナーをセットアップ
     const tasksChannel = supabase.channel('tasks')
     tasksChannel
       .on<Task>(
@@ -109,6 +110,8 @@ const Home: NextPage = () => {
       if (user == null) {
         return alert('User is not signed in')
       }
+
+      // `tasks`テーブルにデータを格納
       const { error } = await supabase.from('tasks').insert({
         user_id: user!.id,
         content: content.trim(),
