@@ -13,6 +13,7 @@ export interface Database {
         Row: {
           user_id: string
           content: string
+          image_url: string | null
           id: string
           is_done: boolean
           created_at: string
@@ -20,6 +21,7 @@ export interface Database {
         Insert: {
           user_id: string
           content: string
+          image_url?: string | null
           id?: string
           is_done?: boolean
           created_at?: string
@@ -27,6 +29,7 @@ export interface Database {
         Update: {
           user_id?: string
           content?: string
+          image_url?: string | null
           id?: string
           is_done?: boolean
           created_at?: string
