@@ -1,7 +1,6 @@
 import { createClient, User } from '@supabase/supabase-js'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { Database } from '../lib/database.types'
 
@@ -80,11 +79,6 @@ const Home: NextPage = () => {
         }
       )
       .subscribe()
-
-    // return () => {
-    //   supabase.removeAllChannels()
-    //   authStateListener.data.subscription.unsubscribe()
-    // }
   }, [])
 
   const handleLogin = async (
@@ -161,9 +155,9 @@ const Home: NextPage = () => {
       ) : (
         <main className="h-screen">
           {user ? (
-            <div className="p-4 flex flex-col h-full">
+            <div className="p-4 flex flex-col h-full max-w-xl md:mx-auto">
               <div className="flex-grow overflow-y-scroll">
-                <ul className="">
+                <ul>
                   {tasks.map((task) => (
                     <li
                       className="pb-2 flex border-b-gray-600 border-b"
