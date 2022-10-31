@@ -1,27 +1,25 @@
-# Next.js + Tailwind CSS Example
+# Simple Todo
 
-This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v3.0)](https://tailwindcss.com/blog/tailwindcss-v3) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
+Simple todo list app using Next.js and Supabase.
 
-## Deploy your own
+## Table schema
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-tailwindcss)
+```sql
+-- Create messages table
+create table if not exists public.tasks (
+    id uuid not null primary key default uuid_generate_v4(),
+    user_id uuid not null references auth.users(id),
+    content text not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null
+);
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss&project-name=with-tailwindcss&repository-name=with-tailwindcss)
+-- Set row level security
+alter table public.tasks enable row level security;
+create policy "Users can view their tasks" on public.tasks for select using (auth.uid = user_id);
+create policy "Users can create new tasks" on public.tasks for insert with check (auth.uid = user_id);
+create policy "Users can update their tasks" on public.tasks for insert with check (auth.uid = user_id) using (auth.uid = user_id);
+create policy "Users can delete their tasks" on public.tasks for insert using (auth.uid = user_id);
 
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-tailwindcss with-tailwindcss-app
+-- Enable relatime
+alter publication supabase_realtime add table public.tasks;
 ```
-
-```bash
-yarn create next-app --example with-tailwindcss with-tailwindcss-app
-```
-
-```bash
-pnpm create next-app --example with-tailwindcss with-tailwindcss-app
-```
-
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
