@@ -3,54 +3,93 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { Database } from '../lib/database.types'
 
-const supabase = createClient(
+const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_KEY!
 )
 
+type Task = Database['public']['Tables']['tasks']['Row']
+
 const Home: NextPage = () => {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
 
   useEffect(() => {
     const getInitialMessages = async () => {
       const { data, error } = await supabase
-        .from<Message>('tasks')
+        .from('tasks')
         .select()
         .order('created_at', { ascending: false })
       if (error) {
         alert(error.message)
       } else if (data) {
-        setMessages(data)
+        setTasks(data)
       }
     }
     getInitialMessages()
 
-    // const subscription = supabase
-    //   .from<Message>(`tasks`)
-    //   .on('INSERT', (payload) => {
-    //     setMessages((current) => [payload.new, ...current])
-    //   })
-    //   .subscribe()
+    const tasksChannel = supabase.channel('tasks')
+    tasksChannel
+      .on<Task>(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'tasks' },
+        (payload) => {
+          setTasks((prev) => [payload.new, ...prev])
+        }
+      )
+      .on<Task>(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'tasks' },
+        (payload) => {
+          setTasks((prev) => {
+            const updatedTask = payload.new
+            const targetIndex = prev.findIndex(
+              (task) => task.id == updatedTask.id
+            )
+            if (targetIndex >= 0) {
+              prev[targetIndex] = updatedTask
+            }
+            return prev
+          })
+        }
+      )
+      .on<Task>(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'tasks' },
+        (payload) => {
+          setTasks((prev) => prev.filter((task) => task.id == payload.old.id))
+        }
+      )
 
     return () => {
       supabase.removeAllChannels()
     }
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    console.log('handle submit called')
     e.preventDefault()
     const form = e.currentTarget
-    const { message } = Object.fromEntries(new FormData(form))
+    const { content } = Object.fromEntries(new FormData(form))
 
-    if (typeof message === 'string' && message.trim().length !== 0) {
+    if (typeof content === 'string' && content.trim().length !== 0) {
       form.reset()
-      const { error } = await supabase
-        .from('tasks')
-        .insert({ content: message })
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user == null) {
+        return alert('User is not signed in')
+      }
+      const { error } = await supabase.from('tasks').insert({
+        user_id: user!.id,
+        content: content.trim(),
+      })
 
       if (error) {
-        alert(error.message)
+        return alert(error.message)
       }
     }
   }
@@ -65,13 +104,13 @@ const Home: NextPage = () => {
       <main className="p-4 flex flex-col h-screen">
         <div className="flex-grow overflow-y-scroll">
           <ul className="flex flex-col items-start justify-start">
-            {messages.map((message) => (
-              <li className="pb-2 flex" key={message.id}>
+            {tasks.map((task) => (
+              <li className="pb-2 flex" key={task.id}>
                 <div className="bg-green-500 px-2 py-1 rounded">
-                  {message.content}
+                  {task.content}
                 </div>
                 <span className="ml-2 text-zinc-500 text-sm">
-                  {message.created_at}
+                  {task.created_at}
                 </span>
               </li>
             ))}
@@ -81,7 +120,7 @@ const Home: NextPage = () => {
           <input
             className="p-2 rounded w-full"
             type="text"
-            name="task"
+            name="content"
             placeholder="新しいタスクを入力..."
           />
         </form>

@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "update-types": "supabase gen types typescript --project-id tbtmdufvicdpycwqbtpt > lib/database.types.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.4",
