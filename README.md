@@ -8,7 +8,7 @@ Simple todo list app using Next.js and Supabase.
 -- Create messages table
 create table if not exists public.tasks (
     id uuid not null primary key default uuid_generate_v4(),
-    user_id uuid not null references auth.users(id),
+    user_id uuid not null references auth.users(id) default auth.uid(),
     content text not null,
     is_done boolean not null default false,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
@@ -23,4 +23,12 @@ create policy "Users can delete their tasks" on public.tasks for insert using (a
 
 -- Enable relatime
 alter publication supabase_realtime add table public.tasks;
+```
+
+## Generating types
+
+You can generate types for your database using the following command
+
+```bash
+supabase gen types typescript --project-id your_project_id --schema public > lib/database.types.ts
 ```

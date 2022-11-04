@@ -11,23 +11,23 @@ export interface Database {
     Tables: {
       tasks: {
         Row: {
+          id: string
           user_id: string
           content: string
-          id: string
           is_done: boolean
           created_at: string
         }
         Insert: {
-          user_id: string
-          content: string
           id?: string
+          user_id?: string
+          content: string
           is_done?: boolean
           created_at?: string
         }
         Update: {
+          id?: string
           user_id?: string
           content?: string
-          id?: string
           is_done?: boolean
           created_at?: string
         }

@@ -94,6 +94,7 @@ const Home: NextPage = () => {
       alert('Emailのインボックスを確認してください')
     }
   }
+
   // 新しいタスクを`tasks`テーブルに挿入
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -104,19 +105,11 @@ const Home: NextPage = () => {
 
     if (typeof content === 'string' && content.trim().length !== 0) {
       form.reset()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
 
       // `tasks`テーブルにデータを格納
-      const { error } = await supabase.from('tasks').insert({
-        user_id: user!.id,
+      await supabase.from('tasks').insert({
         content: content.trim(),
       })
-
-      if (error) {
-        return alert(error.message)
-      }
     }
   }
 
