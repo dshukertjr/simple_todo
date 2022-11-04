@@ -94,7 +94,7 @@ const Home: NextPage = () => {
       alert('Emailのインボックスを確認してください')
     }
   }
-
+  // 新しいタスクを`tasks`テーブルに挿入
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -107,9 +107,6 @@ const Home: NextPage = () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user == null) {
-        return alert('User is not signed in')
-      }
 
       // `tasks`テーブルにデータを格納
       const { error } = await supabase.from('tasks').insert({
