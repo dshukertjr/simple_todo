@@ -6,8 +6,8 @@ import { Database } from '../lib/database.types'
 
 // Supabaseのクライアントを初期化
 const supabase = createClient<Database>(
-  'https://tbtmdufvicdpycwqbtpt.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRidG1kdWZ2aWNkcHljd3FidHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjcxNzY4ODgsImV4cCI6MTk4Mjc1Mjg4OH0.mOGeYlWNDC87YsU_EyZ6Rxtv-AMBCzNe0tCo7_LUMnk'
+  'https://bjyreabarfzxvtsmjpel.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqeXJlYWJhcmZ6eHZ0c21qcGVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDE2Njk4ODMsImV4cCI6MjAxNzI0NTg4M30.r-HNlgxPTbKwKbFGzDRdrF0sbPLQcKlNHTAxeLXz8Ro'
 )
 
 type Task = Database['public']['Tables']['tasks']['Row']
@@ -111,7 +111,7 @@ const Home: NextPage = () => {
   }
 
   // チェックアイコンをクリックした時に`is_done`ステータスをアップデート
-  const handleUpdate = async (taskId: string, newStatus: boolean) => {
+  const handleUpdate = async (taskId: number, newStatus: boolean) => {
     await supabase
       .from('tasks')
       .update({ is_done: newStatus })
@@ -119,7 +119,7 @@ const Home: NextPage = () => {
   }
 
   // ゴミ箱アイコンをクリックした時にタスクを削除
-  const handleDelete = async (taskId: string) => {
+  const handleDelete = async (taskId: number) => {
     await supabase.from('tasks').delete().match({ id: taskId })
   }
 
